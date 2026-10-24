@@ -1,0 +1,83 @@
+# ==========================================
+# ResepLaba - GTNIC 2026 Root .gitignore
+# ==========================================
+
+# Internal development notes & prompts (GTNIC requirement)
+MDehh/
+*.tmp
+*.log
+
+# Environment files & Secrets (CRITICAL: Do NOT commit secrets!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ------------------------------------------
+# Frontend (Next.js / Node.js)
+# ------------------------------------------
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.vercel/
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+node_modules/
+.next/
+out/
+build/
+.vercel/
+
+# ------------------------------------------
+# Backend (Laravel / PHP)
+# ------------------------------------------
+backend/vendor/
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore
+backend/storage/*.key
+backend/storage/app/*
+!backend/storage/app/.gitignore
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitignore
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitignore
+backend/storage/framework/testing/*
+!backend/storage/framework/testing/.gitignore
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
+backend/storage/logs/*
+!backend/storage/logs/.gitignore
+backend/.phpunit.result.cache
+backend/composer.phar
+vendor/
+.phpunit.result.cache
+
+# ------------------------------------------
+# Database & Cache / Logs
+# ------------------------------------------
+*.sqlite
+*.sqlite-journal
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
