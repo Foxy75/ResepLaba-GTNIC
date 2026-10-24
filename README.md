@@ -1,2 +1,2 @@
 # ResepLaba-GTNIC
-beranggotakan
+Team: Foxy75, r4rdi, Zynsykes
