@@ -4,8 +4,10 @@
 
 # Internal development notes & prompts (GTNIC requirement)
 MDehh/
-IDEA.md
+AGENTS.md
+GATES.md
 .impeccable/
+.unlazy/
 .vscode/
 .gemini/
 *.md
