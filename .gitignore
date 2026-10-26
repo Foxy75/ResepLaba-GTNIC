@@ -4,6 +4,12 @@
 
 # Internal development notes & prompts (GTNIC requirement)
 MDehh/
+IDEA.md
+.impeccable/
+.vscode/
+.gemini/
+*.md
+**/*.md
 *.tmp
 *.log
 

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 246 64" width="246" height="64" role="img" aria-label="ResepLaba">
+  <title>ResepLaba</title>
+  <rect width="64" height="64" rx="16" fill="#0E6B4A"/>
+  <path d="M20 13 H44 V45 L41 42 L38 45 L35 42 L32 45 L29 42 L26 45 L23 42 L20 45 Z" fill="#FAF7F2"/>
+  <path d="M25 37 L29.5 32 L33 35.5 L38 29.5" fill="none" stroke="#C89B3C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 27 L39.1 31.4 L35.7 28.6 Z" fill="#C89B3C"/>
+  <text x="80" y="43" font-family="'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif" font-size="30" font-weight="800" letter-spacing="-0.5">
+    <tspan fill="#1C1917">Resep</tspan><tspan fill="#0E6B4A">Laba</tspan>
+  </text>
+</svg>
