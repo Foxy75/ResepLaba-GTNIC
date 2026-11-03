@@ -2,7 +2,7 @@
 # ResepLaba - GTNIC 2026 Root .gitignore
 # ==========================================
 
-# Internal development notes & prompts
+# Internal development notes, prompts & doc files (Root & Backend)
 MDehh/
 AGENTS.md
 GATES.md
@@ -10,16 +10,29 @@ GATES.md
 .impeccable/
 .unlazy/
 *.md
+backend-laravel/*.md
 
 # Environment files (Never commit secrets!)
 .env
 .env.*
 !.env.example
 
-# Dependencies & Build artifacts
+# Dependencies & Build artifacts (Frontend & Backend)
 node_modules/
 vendor/
 .next/
+out/
+build/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# Backend Laravel
+backend-laravel/public/hot
+backend-laravel/public/storage
+backend-laravel/public/build
+backend-laravel/storage/*.key
+.phpunit.result.cache
 
 # Database & Logs
 *.sqlite*
