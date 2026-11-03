@@ -17,31 +17,81 @@ GATES.md
 
 # Environment files & Secrets (CRITICAL: Do NOT commit secrets!)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
 *.env
+**/.env
+**/.env.*
+**/*.env
 !.env.example
+!**/.env.example
+!*.env.example
+
+# Credentials, Keys, and Certificates
 *.pem
 *.key
 *.cert
+*.crt
+*.pfx
+*.p12
+*.pkcs12
+*.kdbx
+*.passwd
+*.secret
+*.token
+auth.json
+**/auth.json
+credentials.json
+**/credentials.json
+client_secret*.json
+**/client_secret*.json
+service-account*.json
+**/service-account*.json
+firebase*.json
+**/firebase*.json
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_ecdsa
+id_ecdsa.pub
 
 # Operating System & IDE Files
 .DS_Store
 Thumbs.db
 desktop.ini
 .idea/
+**/.idea/
 .vscode/
+**/.vscode/
+.cursor/
+**/.cursor/
+.zed/
+**/.zed/
+.codex/
+**/.codex/
+.nova/
+**/.nova/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*~
+*.bak
 
 # ------------------------------------------
 # Frontend (Next.js / Node.js)
 # ------------------------------------------
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+build/
+.vercel/
+**/.vercel/
+*.tsbuildinfo
+next-env.d.ts
 frontend/node_modules/
 frontend/.next/
 frontend/out/
@@ -49,19 +99,34 @@ frontend/build/
 frontend/.vercel/
 frontend/*.tsbuildinfo
 frontend/next-env.d.ts
-node_modules/
-.next/
-out/
-build/
-.vercel/
+frontend-nextjs/node_modules/
+frontend-nextjs/.next/
+frontend-nextjs/out/
+frontend-nextjs/build/
+frontend-nextjs/.vercel/
+frontend-nextjs/*.tsbuildinfo
+frontend-nextjs/next-env.d.ts
 
 # ------------------------------------------
 # Backend (Laravel / PHP)
 # ------------------------------------------
+vendor/
+**/vendor/
+.phpunit.result.cache
+**/.phpunit.result.cache
+.phpunit.cache/
+**/.phpunit.cache/
+_ide_helper*.php
+Homestead.json
+Homestead.yaml
+
+# backend (generic)
 backend/vendor/
 backend/bootstrap/cache/*
 !backend/bootstrap/cache/.gitignore
 backend/storage/*.key
+backend/storage/oauth-*.key
+backend/storage/pail/
 backend/storage/app/*
 !backend/storage/app/.gitignore
 backend/storage/framework/cache/*
@@ -76,14 +141,43 @@ backend/storage/logs/*
 !backend/storage/logs/.gitignore
 backend/.phpunit.result.cache
 backend/composer.phar
-vendor/
-.phpunit.result.cache
+
+# backend-laravel (actual workspace folder)
+backend-laravel/vendor/
+backend-laravel/bootstrap/cache/*
+!backend-laravel/bootstrap/cache/.gitignore
+backend-laravel/storage/*.key
+backend-laravel/storage/oauth-*.key
+backend-laravel/storage/pail/
+backend-laravel/storage/app/*
+!backend-laravel/storage/app/.gitignore
+!backend-laravel/storage/app/public/.gitignore
+!backend-laravel/storage/app/private/.gitignore
+backend-laravel/storage/framework/cache/*
+!backend-laravel/storage/framework/cache/.gitignore
+backend-laravel/storage/framework/sessions/*
+!backend-laravel/storage/framework/sessions/.gitignore
+backend-laravel/storage/framework/testing/*
+!backend-laravel/storage/framework/testing/.gitignore
+backend-laravel/storage/framework/views/*
+!backend-laravel/storage/framework/views/.gitignore
+backend-laravel/storage/logs/*
+!backend-laravel/storage/logs/.gitignore
+backend-laravel/public/storage
+backend-laravel/public/hot
+backend-laravel/public/build
+backend-laravel/.phpunit.result.cache
+backend-laravel/.phpunit.cache/
+backend-laravel/composer.phar
 
 # ------------------------------------------
 # Database & Cache / Logs
 # ------------------------------------------
 *.sqlite
 *.sqlite-journal
+*.sqlite3
+*.db
+*.db-journal
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
