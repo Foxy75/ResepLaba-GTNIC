@@ -14,8 +14,8 @@ final class UpdateStoreSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
-            'targetMargin' => ['required', 'numeric', 'between:0,90'],
+            'name' => ['nullable', 'string'],
+            'targetMargin' => ['nullable', 'numeric'],
             'whatsapp' => ['nullable', 'string'],
         ];
     }

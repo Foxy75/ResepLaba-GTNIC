@@ -14,10 +14,10 @@ final class SaveItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
-            'baseUnit' => ['required', 'string'],
-            'purchaseUnit' => ['required', 'string'],
-            'conversionRate' => ['required', 'numeric', 'gt:0'],
+            'name' => ['nullable', 'string'],
+            'baseUnit' => ['nullable', 'string'],
+            'purchaseUnit' => ['nullable', 'string'],
+            'conversionRate' => ['nullable', 'numeric'],
             'unitCost' => ['nullable', 'numeric', 'min:0'],
             'minStock' => ['nullable', 'numeric', 'min:0'],
         ];

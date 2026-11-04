@@ -3,10 +3,12 @@
 use App\Http\Middleware\AiQuotaLimit;
 use App\Http\Middleware\EnsureStoreIsActive;
 use App\Http\Middleware\VerifyOwnerPin;
+use App\Support\ApiResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,4 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $message = collect($e->errors())->flatten()->first() ?: 'Validasi gagal.';
+
+                return ApiResponse::fail($message, [], 422);
+            }
+
+            return null;
+        });
     })->create();

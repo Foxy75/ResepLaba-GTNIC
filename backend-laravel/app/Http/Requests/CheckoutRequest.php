@@ -16,7 +16,7 @@ final class CheckoutRequest extends FormRequest
         return [
             'items' => ['required', 'array', 'min:1'],
             'items.*.productId' => ['required', 'string'],
-            'items.*.qty' => ['required', 'integer', 'min:1'],
+            'items.*.qty' => ['required', 'integer'],
         ];
     }
 }
