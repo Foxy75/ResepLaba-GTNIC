@@ -4,11 +4,14 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { api, currentSnapshot } from "@/lib/api";
+import { api } from "@/lib/api";
+import { hasAuthToken, setOwnerPin, setUnauthorizedHandler } from "@/lib/http";
+import { useRouter } from "next/navigation";
 import type {
   ApiResult,
   Batch,
@@ -59,16 +62,57 @@ type WarungContextValue = {
 
 const Context = createContext<WarungContextValue | null>(null);
 
+const EMPTY_SNAPSHOT: Snapshot = {
+  store: {
+    id: "",
+    name: "",
+    ownerName: "",
+    businessType: "WARMINDO",
+    categoryLabel: "",
+    whatsapp: "",
+    status: "ACTIVE",
+    aiQuota: 0,
+    aiUsed: 0,
+    targetMargin: 0,
+    pin: "",
+  },
+  items: [],
+  batches: [],
+  products: [],
+  transactions: [],
+  broadcasts: [],
+  tenants: [],
+  templates: [],
+};
+
 export function WarungProvider({ children }: { children: ReactNode }) {
-  const [snapshot, setSnapshot] = useState<Snapshot>(() => currentSnapshot());
+  const router = useRouter();
+  const [snapshot, setSnapshot] = useState<Snapshot>(EMPTY_SNAPSHOT);
   const [profile, setProfile] = useState<Profile>("warmindo");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [ownerOpen, setOwnerOpen] = useState(false);
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [dismissedBroadcasts, setDismissedBroadcasts] = useState<string[]>([]);
 
-  const refresh = useCallback(() => {
-    setSnapshot(currentSnapshot());
+  const refresh = useCallback(async () => {
+    const result = await api.workspace();
+    if (result.success && result.data) setSnapshot(result.data);
+  }, []);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => router.push("/login"));
+    return () => setUnauthorizedHandler(null);
+  }, [router]);
+
+  useEffect(() => {
+    if (!hasAuthToken()) return;
+    let cancelled = false;
+    void api.workspace().then((result) => {
+      if (!cancelled && result.success && result.data) setSnapshot(result.data);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const run = useCallback(
@@ -76,7 +120,7 @@ export function WarungProvider({ children }: { children: ReactNode }) {
       setPending((state) => ({ ...state, [key]: true }));
       try {
         const result = await action();
-        refresh();
+        await refresh();
         return result;
       } finally {
         setPending((state) => ({ ...state, [key]: false }));
@@ -105,8 +149,9 @@ export function WarungProvider({ children }: { children: ReactNode }) {
         setProfile(next);
         setCart({});
         setOwnerOpen(false);
+        setOwnerPin(null);
         const result = await api.selectProfile(next);
-        refresh();
+        if (result.success && result.data) setSnapshot(result.data);
         return result;
       },
       addToCart: (productId) =>
@@ -134,10 +179,16 @@ export function WarungProvider({ children }: { children: ReactNode }) {
       saveItem: (item) => run("item", () => api.saveItem(item)),
       verifyPin: async (pin) => {
         const result = await api.verifyPin(pin);
-        if (result.success) setOwnerOpen(true);
+        if (result.success) {
+          setOwnerPin(pin);
+          setOwnerOpen(true);
+        }
         return result.success;
       },
-      lockOwner: () => setOwnerOpen(false),
+      lockOwner: () => {
+        setOwnerOpen(false);
+        setOwnerPin(null);
+      },
       setTenantStatus: (tenantId, status) => run(`tenant-${tenantId}`, () => api.setTenantStatus(tenantId, status)),
       applyTemplate: (templateId) => run("template", () => api.applyTemplate(templateId)),
       sendBroadcast: (message) => run("broadcast", () => api.sendBroadcast(message)),
@@ -147,7 +198,7 @@ export function WarungProvider({ children }: { children: ReactNode }) {
         ),
       saveStoreSettings: (settings) => run("settings", () => api.updateStoreSettings(settings)),
     };
-  }, [cart, dismissedBroadcasts, ownerOpen, pending, profile, refresh, run, snapshot]);
+  }, [cart, dismissedBroadcasts, ownerOpen, pending, profile, run, snapshot]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

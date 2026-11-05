@@ -20,8 +20,7 @@ export default function LoginPage() {
   const { push } = useToast();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  const [pin, setPin] = useState("");
+const [email, setEmail] = useState("");
   const [manualError, setManualError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -45,16 +44,8 @@ export default function LoginPage() {
   const manualLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const value = email.trim().toLowerCase();
-    if (!value) {
+if (!value) {
       setManualError("Isi surel warung dulu.");
-      return;
-    }
-    if (!/^\d{4}$/.test(pin)) {
-      setManualError("PIN harus 4 angka.");
-      return;
-    }
-    if (pin !== "1234") {
-      setManualError("PIN salah. Untuk demo, PIN larangan adalah 1234.");
       return;
     }
     setManualError("");
@@ -161,7 +152,7 @@ export default function LoginPage() {
         <details className="mt-6 rounded-2xl border border-line bg-sheet px-4 py-3">
           <summary className="cursor-pointer text-sm font-semibold text-ink">Masuk manual</summary>
           <form onSubmit={manualLogin} className="mt-4 space-y-4">
-            <Field label="Surel warung" htmlFor="login-email">
+<Field label="Surel warung" htmlFor="login-email" error={manualError}>
               <Input
                 id="login-email"
                 type="email"
@@ -171,20 +162,6 @@ export default function LoginPage() {
                 autoComplete="username"
               />
             </Field>
-            <Field label="PIN juragan" htmlFor="login-pin" error={manualError}>
-              <Input
-                id="login-pin"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={4}
-                value={pin}
-                onChange={(event) => {
-                  setPin(event.target.value.replace(/\D/g, ""));
-                  setManualError("");
-                }}
-                placeholder="1234"
-              />
-            </Field>
             <Button type="submit" block loading={busy}>
               Masuk ke warung
             </Button>
@@ -192,7 +169,7 @@ export default function LoginPage() {
         </details>
 
         <p className="mt-7 text-xs leading-5 text-ink-soft">
-          Simulasi memakai data lokal di browser. Tidak perlu membuat akun atau memasukkan data pribadi.
+          Simulasi memakai data dari server Laravel (backend harus berjalan di http://127.0.0.1:8000).
         </p>
         <div className="mt-4 flex flex-wrap gap-4 text-xs text-ink-soft">
           <span>Privasi</span>
