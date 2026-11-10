@@ -128,10 +128,12 @@ final class GeminiAgentService
      */
     private function generate(array $payload): ?string
     {
-        $model = config('services.gemini.model', 'gemini-2.5-flash');
+        $model = config('services.gemini.model', 'gemini-3.5-flash');
         $endpoint = rtrim((string) config('services.gemini.endpoint'), '/');
 
-        $response = Http::withToken((string) config('services.gemini.key'))
+        $response = Http::withHeaders([
+            'x-goog-api-key' => (string) config('services.gemini.key'),
+        ])
             ->timeout(25)
             ->post("{$endpoint}/{$model}:generateContent", $payload);
 

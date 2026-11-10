@@ -26,6 +26,7 @@ import {
   sortBatchesFefo,
   stockOf,
 } from "@/lib/domain";
+import { compressImageToWebP } from "@/lib/image-compress";
 import { useWarung } from "@/lib/warung-store";
 import type { Batch, ReceiptDraftRow } from "@/lib/types";
 
@@ -85,7 +86,7 @@ export function StockScreen() {
     });
   }, [batches, filter, items, usableBatches]);
 
-  const startScan = async (image?: File) => {
+  const startScan = async (image?: File | Blob) => {
     const result = await scanReceipt(image);
     if (!result.success || !result.data) {
       push(result.message, "danger");
@@ -281,7 +282,11 @@ export function StockScreen() {
               aria-label="Foto nota belanja"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) void startScan(file);
+                if (file) {
+                  void compressImageToWebP(file)
+                    .then((blob) => startScan(blob))
+                    .catch(() => startScan(file));
+                }
                 event.target.value = "";
               }}
             />

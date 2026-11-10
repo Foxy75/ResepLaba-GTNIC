@@ -55,11 +55,15 @@ export const api = {
     return http.post("/inventory/restock", input);
   },
 
-  async scanReceipt(image?: File): Promise<ApiResult<ReceiptDraft>> {
-    if (!image) return http.post<ReceiptDraft>("/inventory/ocr-receipt", {});
+  async scanReceipt(image?: File | Blob): Promise<ApiResult<ReceiptDraft>> {
+    if (!image) {
+      const res = await fetch("/api/inventory/ocr-receipt", { method: "POST" });
+      return res.json();
+    }
     const form = new FormData();
-    form.append("image", image);
-    return http.post<ReceiptDraft>("/inventory/ocr-receipt", form);
+    form.append("image", image, "receipt.webp");
+    const res = await fetch("/api/inventory/ocr-receipt", { method: "POST", body: form });
+    return res.json();
   },
 
   async saveReceiptDraft(rows: ReceiptDraftRow[]): Promise<ApiResult<{ added: number }>> {
