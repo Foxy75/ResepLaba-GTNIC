@@ -36,7 +36,6 @@ final class WorkspaceSerializer
             'aiQuota' => (int) $store->ai_quota,
             'aiUsed' => (int) $store->ai_used,
             'targetMargin' => self::num($store->target_margin_percent),
-            'pin' => (string) config('reseplaba.demo_pin', '1234'),
         ];
     }
 
@@ -170,7 +169,7 @@ final class WorkspaceSerializer
     /**
      * Snapshot penuh { store, items, batches, products, transactions, broadcasts, tenants, templates }.
      */
-    public static function snapshot(Store $store, ?string $today = null): array
+    public static function snapshot(Store $store, ?string $today = null, bool $includeAdminData = false): array
     {
         $today ??= (string) config('reseplaba.demo_today', '2026-10-25');
 
@@ -202,16 +201,19 @@ final class WorkspaceSerializer
         }
 
         $tenants = [];
-        foreach (Store::orderBy('id')->get() as $tenant) {
-            $tenants[] = self::tenant(
-                $tenant,
-                (int) $tenant->transactions()->whereDate('day', $today)->count(),
-            );
-        }
-
         $templates = [];
-        foreach (StarterTemplate::orderBy('id')->get() as $template) {
-            $templates[] = self::template($template);
+
+        if ($includeAdminData) {
+            foreach (Store::orderBy('id')->get() as $tenant) {
+                $tenants[] = self::tenant(
+                    $tenant,
+                    (int) $tenant->transactions()->whereDate('day', $today)->count(),
+                );
+            }
+
+            foreach (StarterTemplate::orderBy('id')->get() as $template) {
+                $templates[] = self::template($template);
+            }
         }
 
         return [

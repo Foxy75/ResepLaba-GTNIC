@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BarChart3, Megaphone, PackageCheck, Store, type LucideIcon } from "lucide-react";
+import { BarChart3, LogOut, Megaphone, PackageCheck, Store, type LucideIcon } from "lucide-react";
 import { useWarung } from "@/lib/warung-store";
 
 export type AdminSection = "ringkasan" | "warung" | "broadcast" | "starter";
@@ -23,10 +23,10 @@ export function AdminShell({
   onSectionChange: (next: AdminSection) => void;
   children: ReactNode;
 }) {
-  const { snapshot } = useWarung();
+  const { snapshot, logout } = useWarung();
 
   return (
-    <main className="min-h-dvh bg-paper text-ink lg:pl-64">
+    <main className="min-h-dvh bg-paper text-ink">
       <a
         href="#konten-admin"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-xl focus:bg-primary focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
@@ -51,6 +51,15 @@ export function AdminShell({
             >
               Buka kasir
             </Link>
+            <button
+              type="button"
+              onClick={() => logout()}
+              className="flex min-h-12 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-critical hover:bg-critical-soft transition"
+              aria-label="Keluar dari akun admin"
+            >
+              <LogOut size={16} aria-hidden />
+              <span>Keluar</span>
+            </button>
           </div>
         </div>
       </header>
@@ -86,8 +95,7 @@ export function AdminShell({
         <div id="konten-admin">{children}</div>
 
         <p className="mt-8 text-xs leading-5 text-ink-soft">
-          Data panel memakai data contoh lokal di browser. Status suspend, template, dan pengumuman belum
-          tersambung ke server produksi. Tenant aktif: {snapshot.tenants.filter((tenant) => tenant.status === "ACTIVE").length} dari{" "}
+          Panel terhubung langsung ke server API Laravel. Perubahan status warung, template racikan, dan siaran pengumuman tersimpan ke database. Tenant aktif: {snapshot.tenants.filter((tenant) => tenant.status === "ACTIVE").length} dari{" "}
           {snapshot.tenants.length} warung.
         </p>
       </div>

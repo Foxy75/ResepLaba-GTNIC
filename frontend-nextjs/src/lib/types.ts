@@ -15,7 +15,6 @@ export type Store = {
   aiQuota: number;
   aiUsed: number;
   targetMargin: number;
-  pin: string;
 };
 
 export type InventoryItem = {

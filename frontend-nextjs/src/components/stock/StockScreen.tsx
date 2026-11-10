@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
-  Boxes,
+  Camera,
   ClipboardList,
   PackagePlus,
   PackageOpen,
@@ -11,7 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/shared/AppShell";
-import { ExpiryHeatmap, Sparkline } from "@/components/charts";
+import { Sparkline } from "@/components/charts";
 import { OpnameSheet, RestockSheet } from "@/components/stock/StockSheets";
 import { PromoSheet, ReceiptStagingSheet } from "@/components/stock/StagingSheets";
 import { Badge, Button, EmptyState, Tabs } from "@/components/ui/primitives";
@@ -44,6 +44,7 @@ export function StockScreen() {
   const [draftKey, setDraftKey] = useState(0);
   const [opnameBatch, setOpnameBatch] = useState<Batch | null>(null);
   const [promoBatch, setPromoBatch] = useState<Batch | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const items = snapshot.items;
   const batches = snapshot.batches;
@@ -71,20 +72,6 @@ export function StockScreen() {
     return { healthy, warning, critical };
   }, [items, usableBatches]);
 
-  const heatmapRows = useMemo(
-    () =>
-      items.map((item) => {
-        const counts = Array.from({ length: 7 }, (_, index) => {
-          const day = addDays(TODAY, index);
-          return usableBatches.filter((batch) => batch.itemId === item.id && batch.expiresAt === day).length;
-        });
-        return { itemId: item.id, itemName: item.name, unit: item.baseUnit, counts };
-      }),
-    [items, usableBatches],
-  );
-
-  const heatmapDays = Array.from({ length: 7 }, (_, index) => addDays(TODAY, index));
-
   const visibleItems = useMemo(() => {
     return items.filter((item) => {
       const stock = stockOf(item.id, batches, TODAY);
@@ -98,8 +85,8 @@ export function StockScreen() {
     });
   }, [batches, filter, items, usableBatches]);
 
-  const startScan = async () => {
-    const result = await scanReceipt();
+  const startScan = async (image?: File) => {
+    const result = await scanReceipt(image);
     if (!result.success || !result.data) {
       push(result.message, "danger");
       return;
@@ -113,12 +100,12 @@ export function StockScreen() {
   const promoItem = promoBatch ? items.find((item) => item.id === promoBatch.itemId) : undefined;
 
   return (
-    <AppShell active="/app/stock" title="Stok & belanja" subtitle="Lihat batch yang harus keluar lebih dulu, lalu catat kulakan agar modal menu tetap akurat.">
+    <AppShell active="/app/stock" title="Stok & belanja" subtitle="Pantau stok barang yang harus cepat dijual lebih dulu, serta catat kulakan agar modal menu tetap akurat.">
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Tabs<"batch" | "nota">
           label="Tampilan stok"
           items={[
-            { id: "batch", label: "Batch stok", count: items.length },
+            { id: "batch", label: "Daftar Stok Barang", count: items.length },
             { id: "nota", label: "Catat dari nota" },
           ]}
           value={tab}
@@ -149,26 +136,11 @@ export function StockScreen() {
                   {summary.critical + summary.warning} barang perlu diperiksa
                 </p>
                 <p className="mt-1 text-sm leading-5 text-ink-soft">
-                  Prioritaskan barang yang kedaluwarsa dalam tiga hari. Penjualan kasir mengambil batch terdekat lebih dulu.
+                  Prioritaskan barang yang kedaluwarsa dalam tiga hari. Penjualan kasir otomatis mendahulukan barang terdekat lebih dulu.
                 </p>
               </div>
             </div>
           )}
-
-          <section className="mb-6 rounded-2xl border border-line bg-sheet p-5" aria-labelledby="heatmap-title">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 id="heatmap-title" className="text-lg font-bold">
-                  Papan kedaluwarsa
-                </h2>
-                <p className="mt-1 text-sm text-ink-soft">Sebaran batch tujuh hari ke depan per barang.</p>
-              </div>
-              <Boxes size={19} className="text-primary" aria-hidden />
-            </div>
-            <div className="mt-4 overflow-x-auto">
-              <ExpiryHeatmap rows={heatmapRows} days={heatmapDays} />
-            </div>
-          </section>
 
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <Tabs<StockFilter>
@@ -195,7 +167,7 @@ export function StockScreen() {
                       <div className="min-w-0">
                         <h2 className="truncate font-bold">{item.name}</h2>
                         <p className="mt-1 text-xs text-ink-soft">
-                          {numberId(stock)} {item.baseUnit} tersedia Â· minimal {numberId(item.minStock)}
+                          {numberId(stock)} {item.baseUnit} tersedia (minimal {numberId(item.minStock)})
                         </p>
                       </div>
                       {low ? (
@@ -207,7 +179,7 @@ export function StockScreen() {
 
                     {itemBatches.length ? (
                       <ul className="mt-4 divide-y divide-line">
-                        {itemBatches.map((batch) => {
+                        {itemBatches.map((batch, batchIndex) => {
                           const left = daysLeft(batch.expiresAt, TODAY);
                           const state = expiryState(left);
                           return (
@@ -215,10 +187,10 @@ export function StockScreen() {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                   <p className="truncate text-sm font-semibold">
-                                    Batch {batch.code} Â· {numberId(batch.qty)} {item.baseUnit}
+                                    Stok Masuk #{batchIndex + 1} ({numberId(batch.qty)} {item.baseUnit})
                                   </p>
                                   <p className="mt-1 text-xs text-ink-soft">
-                                    Expired {dateId(batch.expiresAt)} Â· modal {rupiah(batch.unitCost)}/{item.baseUnit}
+                                    Batas Kedaluwarsa: {dateId(batch.expiresAt)} — Modal: {rupiah(batch.unitCost)}/{item.baseUnit}
                                   </p>
                                 </div>
                                 <Badge
@@ -240,7 +212,7 @@ export function StockScreen() {
                                       icon={<Sparkles size={15} aria-hidden />}
                                       onClick={() => setPromoBatch(batch)}
                                     >
-                                      Promo
+                                      Ide Promo
                                     </Button>
                                   )}
                                   <Button
@@ -248,8 +220,9 @@ export function StockScreen() {
                                     className="min-h-12 px-3 text-xs"
                                     icon={<ClipboardList size={15} aria-hidden />}
                                     onClick={() => setOpnameBatch(batch)}
+                                    title="Hitung ulang fisik barang di rak"
                                   >
-                                    Opname
+                                    Hitung Fisik
                                   </Button>
                                 </div>
                               </div>
@@ -259,7 +232,7 @@ export function StockScreen() {
                       </ul>
                     ) : (
                       <div className="mt-4 rounded-xl bg-paper p-4 text-sm leading-6 text-ink-soft">
-                        Belum ada batch aktif. Catat belanja masuk untuk menambah stok.
+                        Belum ada stok aktif. Catat belanja masuk untuk menambah stok.
                       </div>
                     )}
                   </article>
@@ -299,15 +272,37 @@ export function StockScreen() {
             </div>
           </div>
           <div className="mt-5 space-y-3">
-            <Button
-              icon={<ScanLine size={17} aria-hidden />}
-              loading={pending.ocr}
-              onClick={() => void startScan()}
-            >
-              Pindai nota belanja
-            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="sr-only"
+              aria-label="Foto nota belanja"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void startScan(file);
+                event.target.value = "";
+              }}
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="secondary"
+                icon={<Camera size={17} aria-hidden />}
+                onClick={() => fileRef.current?.click()}
+              >
+                Pilih / foto nota
+              </Button>
+              <Button
+                icon={<ScanLine size={17} aria-hidden />}
+                loading={pending.ocr}
+                onClick={() => void startScan()}
+              >
+                Pindai nota belanja
+              </Button>
+            </div>
             <p className="rounded-xl bg-paper p-4 text-sm leading-6 text-ink-soft">
-              Simulasi memakai contoh nota Agen Sumber Rezeki. Baris hasil pindai tetap bisa diubah sebelum disimpan ke stok.
+              Ambil foto nota belanja dengan tombol &ldquo;Pilih / foto nota&rdquo;, atau langsung klik &ldquo;Pindai nota belanja&rdquo; untuk memakai contoh nota Agen Sumber Rezeki.
             </p>
           </div>
         </section>
@@ -334,6 +329,7 @@ export function StockScreen() {
         batchCode={promoBatch?.code ?? ""}
         days={promoBatch ? Math.max(daysLeft(promoBatch.expiresAt, TODAY), 0) : 0}
         qty={promoBatch?.qty ?? 0}
+        batchId={promoBatch?.id ?? ""}
       />
     </AppShell>
   );

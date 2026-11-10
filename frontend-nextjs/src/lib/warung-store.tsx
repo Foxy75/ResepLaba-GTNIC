@@ -9,8 +9,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { api } from "@/lib/api";
-import { hasAuthToken, setOwnerPin, setUnauthorizedHandler } from "@/lib/http";
+import { api, type RegisterPayload } from "@/lib/api";
+import { clearAuth, hasAuthToken, setOwnerPin, setUnauthorizedHandler } from "@/lib/http";
 import { useRouter } from "next/navigation";
 import type {
   ApiResult,
@@ -38,21 +38,25 @@ type WarungContextValue = {
   pending: Record<string, boolean>;
   dismissedBroadcasts: string[];
   selectProfile: (profile: Profile) => Promise<ApiResult<Snapshot>>;
+  login: (email: string, password: string) => Promise<ApiResult<Snapshot>>;
+  register: (payload: RegisterPayload) => Promise<ApiResult<Snapshot>>;
   addToCart: (productId: string) => void;
   changeCart: (productId: string, delta: number) => void;
   clearCart: () => void;
   checkout: () => Promise<ApiResult<CheckoutOutput>>;
   restock: (input: RestockInput) => Promise<ApiResult<{ batch: Batch; units: number; unitCost: number }>>;
-  scanReceipt: () => Promise<ApiResult<ReceiptDraft>>;
+  scanReceipt: (image?: File) => Promise<ApiResult<ReceiptDraft>>;
   saveReceiptDraft: (rows: ReceiptDraftRow[]) => Promise<ApiResult<{ added: number }>>;
   adjustBatch: (batchId: string, qty: number, reason: string) => Promise<ApiResult<Batch>>;
   markBatch: (batchId: string, status: "DAMAGED" | "EXPIRED") => Promise<ApiResult<Batch>>;
+  fetchPromo: (batchId: string) => Promise<ApiResult<{ text: string }>>;
   removeBatch: (batchId: string) => Promise<ApiResult<null>>;
   saveProduct: (product: Product) => Promise<ApiResult<Product>>;
   deleteProduct: (productId: string) => Promise<ApiResult<null>>;
   saveItem: (item: InventoryItem) => Promise<ApiResult<InventoryItem>>;
-  verifyPin: (pin: string) => Promise<boolean>;
+  verifyPin: (pin: string) => Promise<ApiResult<boolean>>;
   lockOwner: () => void;
+  logout: () => void;
   setTenantStatus: (tenantId: string, status: StoreStatus) => Promise<ApiResult<Tenant>>;
   applyTemplate: (templateId: string) => Promise<ApiResult<number>>;
   sendBroadcast: (message: string) => Promise<ApiResult<Broadcast>>;
@@ -74,7 +78,6 @@ const EMPTY_SNAPSHOT: Snapshot = {
     aiQuota: 0,
     aiUsed: 0,
     targetMargin: 0,
-    pin: "",
   },
   items: [],
   batches: [],
@@ -154,6 +157,36 @@ export function WarungProvider({ children }: { children: ReactNode }) {
         if (result.success && result.data) setSnapshot(result.data);
         return result;
       },
+      login: async (email, password) => {
+        setCart({});
+        setOwnerOpen(false);
+        setOwnerPin(null);
+        const result = await api.login(email, password);
+        if (result.success && result.data) {
+          setSnapshot(result.data);
+          const nextProfile: Profile =
+            result.data.tenants && result.data.tenants.length > 0
+              ? "admin"
+              : result.data.store.businessType === "MADURA"
+                ? "madura"
+                : "warmindo";
+          setProfile(nextProfile);
+        }
+        return result;
+      },
+      register: async (payload) => {
+        setCart({});
+        setOwnerOpen(false);
+        setOwnerPin(null);
+        const result = await api.register(payload);
+        if (result.success && result.data) {
+          setSnapshot(result.data);
+          const nextProfile: Profile =
+            result.data.store.businessType === "MADURA" ? "madura" : "warmindo";
+          setProfile(nextProfile);
+        }
+        return result;
+      },
       addToCart: (productId) =>
         setCart((current) => ({ ...current, [productId]: (current[productId] ?? 0) + 1 })),
       changeCart: (productId, delta) =>
@@ -169,10 +202,11 @@ export function WarungProvider({ children }: { children: ReactNode }) {
       clearCart: () => setCart({}),
       checkout: () => run("checkout", () => api.checkout(Object.entries(cart).map(([productId, qty]) => ({ productId, qty })))),
       restock: (input) => run("restock", () => api.restock(input)),
-      scanReceipt: () => run("ocr", () => api.scanReceipt()),
+      scanReceipt: (image) => run("ocr", () => api.scanReceipt(image)),
       saveReceiptDraft: (rows) => run("ocr", () => api.saveReceiptDraft(rows)),
       adjustBatch: (batchId, qty, reason) => run(`batch-${batchId}`, () => api.adjustBatch(batchId, qty, reason)),
       markBatch: (batchId, status) => run(`batch-${batchId}`, () => api.markBatch(batchId, status)),
+      fetchPromo: (batchId) => run("promo", () => api.getPromo(batchId)),
       removeBatch: (batchId) => run(`batch-${batchId}`, () => api.removeBatch(batchId)),
       saveProduct: (product) => run("recipe", () => api.saveProduct(product)),
       deleteProduct: (productId) => run("recipe", () => api.deleteProduct(productId)),
@@ -183,11 +217,19 @@ export function WarungProvider({ children }: { children: ReactNode }) {
           setOwnerPin(pin);
           setOwnerOpen(true);
         }
-        return result.success;
+        return result;
       },
       lockOwner: () => {
         setOwnerOpen(false);
         setOwnerPin(null);
+      },
+      logout: () => {
+        void api.logout();
+        clearAuth();
+        setSnapshot(EMPTY_SNAPSHOT);
+        setCart({});
+        setOwnerOpen(false);
+        router.push("/login");
       },
       setTenantStatus: (tenantId, status) => run(`tenant-${tenantId}`, () => api.setTenantStatus(tenantId, status)),
       applyTemplate: (templateId) => run("template", () => api.applyTemplate(templateId)),
@@ -198,7 +240,7 @@ export function WarungProvider({ children }: { children: ReactNode }) {
         ),
       saveStoreSettings: (settings) => run("settings", () => api.updateStoreSettings(settings)),
     };
-  }, [cart, dismissedBroadcasts, ownerOpen, pending, profile, run, snapshot]);
+  }, [cart, dismissedBroadcasts, ownerOpen, pending, profile, router, run, snapshot]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

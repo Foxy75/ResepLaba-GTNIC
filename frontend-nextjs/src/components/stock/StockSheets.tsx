@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { ClipboardCheck, PackagePlus, Trash2, TriangleAlert } from "lucide-react";
@@ -33,7 +33,7 @@ export function OpnameSheet({
     if (!batch) return;
     const value = Number(qty);
     if (!Number.isFinite(value) || value < 0) {
-      push("Jumlah hasil opname harus angka nol atau lebih.", "danger");
+      push("Jumlah stok fisik harus angka nol atau lebih.", "danger");
       return;
     }
     const result = await adjustBatch(batch.id, value, reason.trim());
@@ -41,7 +41,7 @@ export function OpnameSheet({
       push(result.message, "danger");
       return;
     }
-    push(result.message);
+    push("Jumlah stok berhasil disesuaikan dengan fisik rak.");
     setQty("");
     setReason("");
     onClose();
@@ -73,15 +73,15 @@ export function OpnameSheet({
     <Sheet
       open={open}
       onClose={onClose}
-      title="Opname batch"
-      description={batch ? `${itemName} Â· batch ${batch.code}` : undefined}
+      title="Hitung Fisik Barang"
+      description={batch ? `${itemName} — Stok Tercatat: ${numberId(batch.qty)} ${unit}` : undefined}
       footer={
         <>
           <Button variant="secondary" block onClick={onClose}>
             Tutup
           </Button>
           <Button block loading={pending[key]} onClick={() => void submit()}>
-            Simpan hasil opname
+            Simpan Jumlah Stok Baru
           </Button>
         </>
       }
@@ -89,10 +89,10 @@ export function OpnameSheet({
       {batch && (
         <div className="space-y-4">
           <div className="rounded-xl bg-paper p-4 text-sm leading-6 text-ink-soft">
-            Stok sistem saat ini <b className="text-ink">{numberId(batch.qty)} {unit}</b> dari total awal{" "}
-            <b className="text-ink">{numberId(batch.initialQty)} {unit}</b>. Isi jumlah hasil hitung fisik di rak.
+            Stok menurut catatan sistem saat ini <b className="text-ink">{numberId(batch.qty)} {unit}</b> dari total awal kulakan{" "}
+            <b className="text-ink">{numberId(batch.initialQty)} {unit}</b>. Masukkan jumlah sebenarnya yang ada di rak warung Anda sekarang.
           </div>
-          <Field label={`Jumlah hasil hitung (${unit})`} htmlFor="opname-qty">
+          <Field label={`Jumlah fisik di rak saat ini (${unit})`} htmlFor="opname-qty">
             <Input
               id="opname-qty"
               type="number"
@@ -104,14 +104,14 @@ export function OpnameSheet({
               placeholder={String(batch.qty)}
             />
           </Field>
-          <Field label="Catatan opname" htmlFor="opname-reason">
+          <Field label="Alasan penyesuaian (opsional)" htmlFor="opname-reason">
             <Textarea
               id="opname-reason"
               rows={2}
               maxLength={120}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
-              placeholder="Contoh: 2 bungkus rusak, sisanya laku"
+              placeholder="Contoh: 2 bungkus sobek atau rusak, selisih hitung"
             />
           </Field>
           <div className="flex flex-col gap-3 border-t border-line pt-4 sm:flex-row">
@@ -140,7 +140,7 @@ export function OpnameSheet({
               loading={pending[key]}
               onClick={() => void remove()}
             >
-              Hapus batch
+              Keluarkan dari stok
             </Button>
           </div>
         </div>
@@ -211,7 +211,7 @@ export function RestockSheet({ open, onClose }: { open: boolean; onClose: () => 
           >
             {snapshot.items.map((entry) => (
               <option key={entry.id} value={entry.id}>
-                {entry.name} Â· 1 {entry.purchaseUnit} isi {numberId(entry.conversionRate)} {entry.baseUnit}
+                {entry.name} — 1 {entry.purchaseUnit} isi {numberId(entry.conversionRate)} {entry.baseUnit}
               </option>
             ))}
           </select>
@@ -250,13 +250,13 @@ export function RestockSheet({ open, onClose }: { open: boolean; onClose: () => 
               onChange={(event) => setExpiresAt(event.target.value)}
             />
           </Field>
-          <Field label="Kode batch (opsional)" htmlFor="restock-code">
+          <Field label="Kode nota / faktur (opsional)" htmlFor="restock-code">
             <Input
               id="restock-code"
               value={code}
               maxLength={24}
               onChange={(event) => setCode(event.target.value)}
-              placeholder="Contoh: T-2611-C"
+              placeholder="Contoh: NOTA-01 atau kosongkan"
             />
           </Field>
         </div>

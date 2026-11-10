@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -190,7 +190,7 @@ export function AdminScreen() {
                   >
                     <h2 className="truncate text-sm font-bold">{tenant.name}</h2>
                     <p className="mt-1 text-xs text-ink-soft">
-                      {tenant.categoryLabel} Â· {tenant.transactionsToday} transaksi hari ini Â· OCR {tenant.aiUsed}/
+                      {tenant.categoryLabel} — {tenant.transactionsToday} transaksi hari ini — OCR {tenant.aiUsed}/
                       {tenant.aiQuota}
                     </p>
                   </button>
@@ -321,7 +321,7 @@ export function AdminScreen() {
         open={Boolean(detail)}
         onClose={() => setDetail(null)}
         title={detail?.name ?? "Detail warung"}
-        description={detail ? `${detail.categoryLabel} Â· pemilik ${detail.ownerName}` : undefined}
+        description={detail ? `${detail.categoryLabel} — pemilik ${detail.ownerName}` : undefined}
         footer={
           detail ? (
             <>
@@ -409,7 +409,7 @@ export function AdminScreen() {
                 <span>
                   <b className="block text-sm">{entry.name}</b>
                   <small className="mt-1 block text-xs text-ink-soft">
-                    1 {entry.purchaseUnit} isi {numberId(entry.conversionRate)} {entry.baseUnit} Â· modal{" "}
+                    1 {entry.purchaseUnit} isi {numberId(entry.conversionRate)} {entry.baseUnit} — modal{" "}
                     {numberId(entry.unitCost)}/{entry.baseUnit}
                   </small>
                 </span>

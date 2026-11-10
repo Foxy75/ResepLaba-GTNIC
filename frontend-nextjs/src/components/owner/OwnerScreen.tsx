@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -147,7 +147,7 @@ export function OwnerScreen() {
           <Button block className="mt-5" onClick={() => setPinOpen(true)}>
             Masukkan PIN
           </Button>
-          <p className="mt-4 text-center text-xs text-ink-soft">PIN demo: 1234</p>
+          <p className="mt-4 text-center text-xs text-ink-soft">Mode diamankan dengan PIN 4 digit.</p>
         </div>
         <PinSheet open={pinOpen} onClose={() => setPinOpen(false)} />
       </main>
@@ -372,7 +372,7 @@ export function OwnerScreen() {
                 rows={productProfit.map((row) => ({
                   label: row.name,
                   value: row.laba,
-                  hint: `${numberId(row.qty)} porsi Â· modal ${rupiah(row.hpp)}`,
+                  hint: `${numberId(row.qty)} porsi — modal ${rupiah(row.hpp)}`,
                   tone: row.laba > 0 ? "primary" : "critical",
                 }))}
                 formatValue={rupiah}
@@ -468,7 +468,7 @@ export function OwnerScreen() {
             <h2 id="ledger-title" className="text-lg font-bold">
               Transaksi terbaru
             </h2>
-            <p className="mt-1 text-sm text-ink-soft">Catatan transaksi demo. Ketuk baris untuk melihat rincian.</p>
+            <p className="mt-1 text-sm text-ink-soft">Catatan transaksi warung. Ketuk baris untuk melihat rincian.</p>
           </div>
           <Button variant="secondary" className="min-h-12 px-3 text-xs" onClick={() => setLedgerOpen(true)}>
             Lihat semua
@@ -489,7 +489,7 @@ export function OwnerScreen() {
                   <span>
                     <b className="block text-sm">{transaction.id}</b>
                     <small className="mt-1 block text-xs text-ink-soft">
-                      {dateTimeId(transaction.createdAt)} Â·{" "}
+                      {dateTimeId(transaction.createdAt)} —{" "}
                       {transaction.lines.reduce((sum, line) => sum + line.qty, 0)} item
                     </small>
                   </span>
@@ -573,7 +573,7 @@ export function OwnerScreen() {
                 <span>
                   <b className="block text-sm">{transaction.id}</b>
                   <small className="mt-1 block text-xs text-ink-soft">
-                    {dateId(transaction.day)} Â· {dateTimeId(transaction.createdAt)}
+                    {dateId(transaction.day)} — {dateTimeId(transaction.createdAt)}
                   </small>
                 </span>
                 <span className="text-right">
@@ -590,7 +590,7 @@ export function OwnerScreen() {
         open={Boolean(ledgerTransaction)}
         onClose={() => setLedgerTransaction(null)}
         title={ledgerTransaction?.id ?? "Rincian transaksi"}
-        description={ledgerTransaction ? `${dateId(ledgerTransaction.day)} Â· ${rupiah(ledgerTransaction.total)}` : undefined}
+        description={ledgerTransaction ? `${dateId(ledgerTransaction.day)} — ${rupiah(ledgerTransaction.total)}` : undefined}
       >
         {ledgerTransaction && (
           <div>
@@ -600,7 +600,7 @@ export function OwnerScreen() {
                   <span>
                     <b className="block text-sm">{line.name}</b>
                     <small className="mt-1 block text-xs text-ink-soft tabular">
-                      {line.qty} x {rupiah(line.price)} Â· modal {rupiah(line.hpp)}
+                      {line.qty} x {rupiah(line.price)} — modal {rupiah(line.hpp)}
                     </small>
                   </span>
                   <span className="text-sm font-bold tabular">{rupiah(line.price * line.qty)}</span>

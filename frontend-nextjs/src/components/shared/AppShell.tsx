@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import { BarChart3, Boxes, CookingPot, LockKeyhole, ShieldCheck } from "lucide-react";
+import { BarChart3, Boxes, CookingPot, LockKeyhole, LogOut, ShieldCheck } from "lucide-react";
 import { BroadcastBanner } from "@/components/shared/BroadcastBanner";
 import { PinSheet } from "@/components/shared/PinSheet";
 import { useWarung } from "@/lib/warung-store";
@@ -25,7 +25,7 @@ export function AppShell({
   subtitle?: string;
   children: ReactNode;
 }) {
-  const { snapshot, profile, ownerOpen } = useWarung();
+  const { snapshot, profile, ownerOpen, logout } = useWarung();
   const router = useRouter();
   const [pinOpen, setPinOpen] = useState(false);
   const store = snapshot.store;
@@ -68,12 +68,15 @@ export function AppShell({
             >
               {ownerOpen ? "Mode Juragan terbuka" : "Mode Penjaga"}
             </span>
-            <Link
-              href="/login"
-              className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-primary hover:bg-primary-soft"
+            <button
+              type="button"
+              onClick={() => logout()}
+              className="flex min-h-12 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-critical hover:bg-critical-soft transition"
+              aria-label="Keluar dari akun"
             >
-              Ganti demo
-            </Link>
+              <LogOut size={16} aria-hidden />
+              <span>Keluar</span>
+            </button>
           </div>
         </div>
       </header>
@@ -107,7 +110,7 @@ export function AppShell({
                 key={href}
                 type="button"
                 onClick={() => setPinOpen(true)}
-                aria-label="Buka mode juragan dengan PIN"
+                aria-label="Mode Juragan"
                 className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-xs font-semibold text-ink-soft transition duration-200 hover:bg-paper active:scale-[.98]"
               >
                 <Icon size={19} strokeWidth={1.8} aria-hidden />
@@ -150,6 +153,7 @@ export function AppShell({
                 key={href}
                 type="button"
                 onClick={() => setPinOpen(true)}
+                aria-label="Mode Juragan"
                 className="flex min-h-12 items-center justify-center gap-3 rounded-xl text-sm font-semibold text-ink-soft hover:bg-paper xl:justify-start xl:px-4"
               >
                 <Icon size={19} aria-hidden />
@@ -171,13 +175,15 @@ export function AppShell({
             </Link>
           );
         })}
-        <Link
-          href="/admin"
-          className="mt-auto flex min-h-12 items-center justify-center gap-3 rounded-xl text-sm font-semibold text-ink-soft hover:bg-paper xl:justify-start xl:px-4"
-        >
-          <BarChart3 size={19} aria-hidden />
-          <span className="hidden xl:inline">Panel platform</span>
-        </Link>
+        {profile === "admin" && (
+          <Link
+            href="/admin"
+            className="mt-auto flex min-h-12 items-center justify-center gap-3 rounded-xl text-sm font-semibold text-ink-soft hover:bg-paper xl:justify-start xl:px-4"
+          >
+            <BarChart3 size={19} aria-hidden />
+            <span className="hidden xl:inline">Panel platform</span>
+          </Link>
+        )}
       </nav>
 
       <PinSheet

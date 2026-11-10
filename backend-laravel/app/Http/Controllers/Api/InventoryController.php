@@ -215,6 +215,24 @@ final class InventoryController extends Controller
         return ApiResponse::ok(trim("Stok {$batch->batch_code} disesuaikan. {$reason}"), WorkspaceSerializer::batch($batch->refresh()));
     }
 
+    public function promoBatch(Request $request, string $id): JsonResponse
+    {
+        $batch = $this->findStoreBatch($request, $id);
+
+        if (! $batch) {
+            return ApiResponse::fail('Batch tidak ditemukan.');
+        }
+
+        $item = $batch->item;
+        $today = strtotime($this->fefo->today());
+        $expiry = strtotime((string) $batch->expiry_date);
+        $days = (int) max(0, floor(($expiry - $today) / 86400));
+
+        $text = $this->gemini->zeroWastePromo($item->name, $batch->batch_code, $days, (float) $batch->remaining_qty);
+
+        return ApiResponse::ok('Ide promo siap.', ['text' => $text]);
+    }
+
     public function markBatch(MarkBatchRequest $request, string $id): JsonResponse
     {
         $batch = $this->findStoreBatch($request, $id);

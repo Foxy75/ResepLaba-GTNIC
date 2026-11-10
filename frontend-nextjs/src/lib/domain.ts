@@ -24,9 +24,9 @@ export function expiryState(days: number): ExpiryState {
 
 export function expiryLabel(days: number): string {
   if (days < 0) return "Kedaluwarsa";
-  if (days === 0) return "Kritis · hari ini";
-  if (days === 1) return "Kritis · H-1";
-  if (days <= 3) return `Segera · H-${days}`;
+  if (days === 0) return "Kritis (Hari ini)";
+  if (days === 1) return "Kritis (H-1)";
+  if (days <= 3) return `Segera (H-${days})`;
   return "Aman";
 }
 

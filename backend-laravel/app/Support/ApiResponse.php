@@ -16,13 +16,13 @@ final class ApiResponse
         ]);
     }
 
-    public static function fail(string $message, array $warnings = [], int $status = 422): JsonResponse
+    public static function fail(string $message, array $warnings = [], int $status = 422, array $headers = []): JsonResponse
     {
         return response()->json([
             'success' => false,
             'message' => $message,
             'data' => null,
             'warnings' => $warnings,
-        ], $status);
+        ], $status, $headers);
     }
 }

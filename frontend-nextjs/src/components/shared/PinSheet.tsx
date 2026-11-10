@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Delete, LockKeyhole } from "lucide-react";
@@ -20,14 +20,12 @@ export function PinSheet({
   const { verifyPin } = useWarung();
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
-  const [attempts, setAttempts] = useState(0);
   const [cooldown, setCooldown] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
     setPin("");
     setError("");
-    setAttempts(0);
     setCooldown(0);
   };
 
@@ -46,25 +44,20 @@ export function PinSheet({
     if (value.length !== 4 || cooldown > 0 || submitting) return;
     setSubmitting(true);
     try {
-      const valid = await verifyPin(value);
-      if (valid) {
+      const result = await verifyPin(value);
+      if (result.success) {
         setPin("");
         setError("");
-        setAttempts(0);
         onUnlocked?.();
         close();
         return;
       }
-      const nextAttempts = attempts + 1;
-      setAttempts(nextAttempts);
       setPin("");
-      if (nextAttempts >= 3) {
-        setCooldown(30);
-        setAttempts(0);
-        setError("Terlalu banyak percobaan. Tunggu 30 detik lalu coba lagi.");
-        return;
+      const msg = result.message || "PIN salah. Coba lagi.";
+      setError(msg);
+      if (msg.includes("dikunci") || msg.includes("terkunci")) {
+        setCooldown(60);
       }
-      setError("PIN salah. Coba lagi.");
     } finally {
       setSubmitting(false);
     }
@@ -157,7 +150,7 @@ export function PinSheet({
         >
           Buka mode juragan
         </Button>
-        <p className="mt-3 text-xs text-ink-soft">PIN demo: 1234</p>
+        <p className="mt-3 text-xs text-ink-soft">PIN bawaan akun: 1234 (dapat diubah di Pengaturan Warung)</p>
       </div>
     </Sheet>
   );

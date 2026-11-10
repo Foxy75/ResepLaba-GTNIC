@@ -33,22 +33,24 @@ function persistToken(token: string | null) {
   else window.localStorage.removeItem(TOKEN_KEY);
 }
 
-function clearAuth() {
+export function clearAuth() {
   persistToken(null);
+  ownerPin = null;
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<ApiResult<T>> {
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
   const headers: Record<string, string> = { Accept: "application/json" };
   if (authToken) headers.Authorization = `Bearer ${authToken}`;
   if (ownerPin) headers["X-Owner-PIN"] = ownerPin;
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (body !== undefined && !isFormData) headers["Content-Type"] = "application/json";
 
   let response: Response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     });
   } catch {
     return {

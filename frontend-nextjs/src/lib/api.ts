@@ -16,9 +16,31 @@ import type {
   Tenant,
 } from "./types";
 
+export type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  storeName: string;
+  businessType?: "WARMINDO" | "MADURA" | "BAKERY" | "OTHER";
+  whatsapp?: string;
+  pin?: string;
+};
+
 export const api = {
   async selectProfile(profile: Profile): Promise<ApiResult<Snapshot>> {
     return http.post<Snapshot>("/auth/sandbox-login", { profile });
+  },
+
+  async login(email: string, password: string): Promise<ApiResult<Snapshot>> {
+    return http.post<Snapshot>("/auth/login", { email, password });
+  },
+
+  async register(payload: RegisterPayload): Promise<ApiResult<Snapshot>> {
+    return http.post<Snapshot>("/auth/register", payload);
+  },
+
+  async logout(): Promise<ApiResult<null>> {
+    return http.post<null>("/auth/logout");
   },
 
   async workspace(): Promise<ApiResult<Snapshot>> {
@@ -33,8 +55,11 @@ export const api = {
     return http.post("/inventory/restock", input);
   },
 
-  async scanReceipt(): Promise<ApiResult<ReceiptDraft>> {
-    return http.post<ReceiptDraft>("/inventory/ocr-receipt", {});
+  async scanReceipt(image?: File): Promise<ApiResult<ReceiptDraft>> {
+    if (!image) return http.post<ReceiptDraft>("/inventory/ocr-receipt", {});
+    const form = new FormData();
+    form.append("image", image);
+    return http.post<ReceiptDraft>("/inventory/ocr-receipt", form);
   },
 
   async saveReceiptDraft(rows: ReceiptDraftRow[]): Promise<ApiResult<{ added: number }>> {
@@ -47,6 +72,10 @@ export const api = {
 
   async markBatch(batchId: string, status: "DAMAGED" | "EXPIRED"): Promise<ApiResult<Batch>> {
     return http.patch(`/inventory/batches/${batchId}/status`, { status });
+  },
+
+  async getPromo(batchId: string): Promise<ApiResult<{ text: string }>> {
+    return http.post(`/inventory/batches/${batchId}/promo`);
   },
 
   async removeBatch(batchId: string): Promise<ApiResult<null>> {
@@ -89,6 +118,16 @@ export const api = {
     whatsapp: string;
   }): Promise<ApiResult<null>> {
     return http.patch("/owner/settings", settings);
+  },
+
+  async getProfitSummary(): Promise<
+    ApiResult<{
+      series: { day: string; omzet: number; hpp: number; laba: number }[];
+      totals: { omzet: number; hpp: number; laba: number };
+      marginPercent: number;
+    }>
+  > {
+    return http.get("/owner/profit-summary");
   },
 };
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -223,7 +223,7 @@ export function PosScreen() {
             Bayar {rupiah(cartTotal)}
           </Button>
           <p className="mt-3 text-center text-xs leading-5 text-ink-soft">
-            Stok diambil dari batch dengan tanggal kedaluwarsa terdekat.
+            Stok otomatis terpotong dari barang yang paling dekat kedaluwarsa (FEFO).
           </p>
         </aside>
       </div>
@@ -298,7 +298,7 @@ export function PosScreen() {
         open={Boolean(receipt)}
         onClose={() => setReceipt(null)}
         title="Transaksi tersimpan"
-        description={receipt ? `${receipt.id} Â· ${rupiah(receipt.total)}` : undefined}
+        description={receipt ? `${receipt.id} — ${rupiah(receipt.total)}` : undefined}
         footer={
           <Button block onClick={() => setReceipt(null)}>
             Selesai, lanjut jualan

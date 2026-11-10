@@ -31,7 +31,6 @@ const warmindoStore: Store = {
   aiQuota: 5,
   aiUsed: 2,
   targetMargin: 25,
-  pin: "1234",
 };
 
 const maduraStore: Store = {
@@ -45,7 +44,6 @@ const maduraStore: Store = {
   aiQuota: 5,
   aiUsed: 1,
   targetMargin: 20,
-  pin: "1234",
 };
 
 const warmindoItems: InventoryItem[] = [

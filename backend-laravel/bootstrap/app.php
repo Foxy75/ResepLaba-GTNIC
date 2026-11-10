@@ -4,6 +4,7 @@ use App\Http\Middleware\AiQuotaLimit;
 use App\Http\Middleware\EnsureStoreIsActive;
 use App\Http\Middleware\VerifyOwnerPin;
 use App\Support\ApiResponse;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
+        $middleware->redirectGuestsTo(fn () => null);
         $middleware->alias([
             'store.active' => EnsureStoreIsActive::class,
             'owner.pin' => VerifyOwnerPin::class,
@@ -29,6 +32,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return ApiResponse::fail('Autentikasi diperlukan.', [], 401);
+            }
+
+            return null;
+        });
 
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {

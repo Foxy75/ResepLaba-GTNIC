@@ -174,11 +174,13 @@ final class OwnerController extends Controller
             return ApiResponse::fail('Warung tidak ditemukan.', [], 404);
         }
 
-        if (Hash::check((string) $request->input('pin'), $store->owner_pin_hash)) {
-            return ApiResponse::ok('Mode Juragan terbuka.', true);
+        $result = \App\Services\PinSecurityService::verify($store, (string) $request->input('pin'), $request);
+
+        if (! $result['ok']) {
+            return ApiResponse::fail($result['message'], [], $result['status']);
         }
 
-        return ApiResponse::fail('PIN salah. Coba lagi.');
+        return ApiResponse::ok($result['message'], true);
     }
 
     public function applyTemplate(Request $request, string $id): JsonResponse

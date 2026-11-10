@@ -27,7 +27,9 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 try {
   console.log("1. Login sandbox");
   await page.goto(`${base}/login`, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /Warmindo Cak Budi/ }).click();
+  await page.fill("#login-email", "budis@resep.laba");
+  await page.fill("#login-password", "password");
+  await page.getByRole("button", { name: "Masuk ke akun" }).click();
   await page.waitForURL("**/app/pos");
   await page.waitForSelector("text=Menu warung", { timeout: 15000 });
   assert((await text(page)).includes("Menu warung"), "kasir terbuka setelah pilih sandbox");
@@ -50,9 +52,9 @@ try {
   console.log("3. Stok: papan kedaluwarsa dan belanja masuk");
   await page.getByRole("link", { name: "Stok", exact: true }).first().click();
   await page.waitForURL("**/app/stock");
-  await page.waitForSelector("text=Papan kedaluwarsa", { timeout: 15000 });
+  await page.waitForSelector("text=Daftar Stok Barang", { timeout: 15000 });
   const stockText = await text(page);
-  assert(stockText.includes("Papan kedaluwarsa"), "papan kedaluwarsa tampil");
+  assert(stockText.includes("Daftar Stok Barang"), "daftar stok barang tampil");
   assert(stockText.includes("Kritis H-1") || stockText.includes("Segera H-3"), "chip status kedaluwarsa tampil");
   await page.getByRole("button", { name: /Belanja masuk/ }).first().click();
   await page.waitForSelector("text=Catat belanja masuk");
@@ -71,8 +73,8 @@ try {
   await page.getByRole("button", { name: /Batal/ }).click();
 
   console.log("5. Mode Juragan dengan PIN");
-  await page.getByRole("button", { name: "Juragan", exact: true }).click();
-  await page.waitForSelector("text=Mode Juragan");
+  await page.getByRole("button", { name: "Mode Juragan" }).first().click();
+  await page.getByRole("dialog").getByRole("heading", { name: "Mode Juragan" }).waitFor({ timeout: 10000 });
   for (const digit of ["1", "2", "3", "4"]) {
     await page.getByRole("button", { name: `Angka ${digit}` }).click();
   }
@@ -92,8 +94,11 @@ try {
   await page.waitForSelector("text=Menu baru disimpan", { timeout: 10000 });
   assert((await text(page)).includes("Mie Goreng Spesial"), "menu racikan baru tersimpan");
 
-  console.log("7. Admin: suspend tenant dan broadcast");
-  await page.getByRole("link", { name: /Panel platform/ }).click();
+console.log("7. Admin: suspend tenant dan broadcast");
+  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  await page.fill("#login-email", "admin@resep.laba");
+  await page.fill("#login-password", "password");
+  await page.getByRole("button", { name: "Masuk ke akun" }).click();
   await page.waitForURL("**/admin");
   await page.getByRole("button", { name: /^Warung$/ }).click();
   await page.getByRole("button", { name: /Tangguhkan/ }).first().click();

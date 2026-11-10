@@ -7,6 +7,11 @@ use App\Models\SellableProduct;
 
 final class HppCalculatorService
 {
+    public function __construct(
+        private readonly GeminiAgentService $advisor,
+    ) {
+    }
+
     public function addDays(string $day, int $offset): string
     {
         return date('Y-m-d', strtotime($day.' +'.$offset.' days'));
@@ -94,7 +99,8 @@ final class HppCalculatorService
                 : 0.0;
 
             if ($margin < (float) $product->target_margin_percent) {
-                $warnings[] = sprintf('Margin %s turun ke %.1f%%.', $product->name, round($margin, 1));
+                $advice = $this->advisor->marginGuardAdvice($product->name, $hpp, (float) $product->target_margin_percent);
+                $warnings[] = sprintf('Margin %s turun ke %.1f%%. %s', $product->name, round($margin, 1), $advice);
             }
         }
 

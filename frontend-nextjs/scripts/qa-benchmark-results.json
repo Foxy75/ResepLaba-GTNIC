@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "target": "ResepLaba (GTNIC 2026)",
+    "baseUrl": "http://localhost:3000",
+    "timestamp": "2026-11-09T23:46:36.526Z",
+    "environment": "Local Next.js App Router (port 3000) + Laravel 11 REST API (port 8000)"
+  },
+  "summary": {
+    "total": 17,
+    "passed": 16,
+    "failed": 1,
+    "warnings": 0
+  },
+  "functionalTests": [
+    {
+      "suite": "Navigation",
+      "testName": "Unauthenticated Root Redirection to /login",
+      "passed": true,
+      "details": "Redirected to /login in 844ms",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Authentication",
+      "testName": "Negative Credentials Handling & Error Notification",
+      "passed": true,
+      "details": "Safely blocked invalid credentials in 678ms",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Authentication",
+      "testName": "Full Store & Owner Registration (Atomic Tenant Onboarding)",
+      "passed": true,
+      "details": "Tenant created and redirected to /app/pos in 1910ms",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Authentication",
+      "testName": "1-Click Sandbox Preset (Warmindo Cak Budi)",
+      "passed": true,
+      "details": "Sandbox preset loaded with full workspace snapshot in 1547ms",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "POS & Checkout",
+      "testName": "Platform Broadcast Notification Rendering in Cashier View",
+      "passed": true,
+      "details": "Broadcast banner rendered and interactive in cashier view",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "POS & Checkout",
+      "testName": "Cart Aggregation & Pricing Accuracy (2x Rp15.000 = Rp30.000)",
+      "passed": true,
+      "details": "Calculated 2 items total Rp30.000",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "POS & Checkout",
+      "testName": "Atomic Transaction Submission & Digital Receipt Breakdown",
+      "passed": true,
+      "details": "Checkout completed in 896ms with margin & receipt display",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Inventory Management",
+      "testName": "Papan Kedaluwarsa & Visual Urgency Indicators",
+      "passed": true,
+      "details": "Expiry board rendered with urgency tags (H-1 / H-3)",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Inventory Management",
+      "testName": "Wholesale Stock-in Intake with FEFO Batch Recording",
+      "passed": true,
+      "details": "Batch intake recorded in 928ms",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Inventory Management",
+      "testName": "Inventory Flow",
+      "passed": false,
+      "details": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=Draf nota belanja') to be visible\u001b[22m\n",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Security & RBAC",
+      "testName": "Mode Juragan Unauthorized PIN Rejection (4-Digit PIN Gate)",
+      "passed": true,
+      "details": "Incorrect PIN (9999) rejected; access to financial ledger blocked",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Owner Governance",
+      "testName": "Mode Juragan Verification & Financial Dashboard Access",
+      "passed": true,
+      "details": "Authenticated via X-Owner-PIN header; revenue analytics & recipe settings unlocked",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Recipe & BoM",
+      "testName": "Smart Bill of Materials (BoM) Recipe Creation",
+      "passed": true,
+      "details": "Recipe successfully registered and reflected in catalog",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Multi-tenant SaaS",
+      "testName": "Super Admin Platform Dashboard Access",
+      "passed": true,
+      "details": "Super Admin authenticated with administrative privileges",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Multi-tenant SaaS",
+      "testName": "Tenant Governance & Lifecycle Control (Suspend / Activate)",
+      "passed": true,
+      "details": "Tenant status toggle action executed and confirmed",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Multi-tenant SaaS",
+      "testName": "Admin Broadcast Dispatch to Active Tenants",
+      "passed": true,
+      "details": "Broadcast notification published and recorded in broadcast ledger",
+      "severity": "NORMAL"
+    },
+    {
+      "suite": "Ergonomics & Responsiveness",
+      "testName": "Mobile Viewport Rendering (375x667px)",
+      "passed": true,
+      "details": "Login and navigation responsive on mobile screen dimensions",
+      "severity": "NORMAL"
+    }
+  ],
+  "performanceMetrics": {
+    "login_page": {
+      "dns_ms": 0,
+      "tcp_ms": 0,
+      "ttfb_ms": 5,
+      "download_ms": 1,
+      "domContentLoaded_ms": 260,
+      "domComplete_ms": 405,
+      "loadEvent_ms": 405,
+      "fcp_ms": 348
+    },
+    "pos_page": {
+      "ttfb_ms": 4,
+      "domContentLoaded_ms": 64,
+      "loadEvent_ms": 117,
+      "fcp_ms": 140
+    },
+    "pos_checkout_latency_ms": 896,
+    "inventory_restock_latency_ms": 928
+  },
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+      "location": {
+        "url": "http://127.0.0.1:8000/api/v1/auth/login",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "location": {
+        "url": "http://127.0.0.1:8000/api/v1/inventory/ocr-receipt",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+      "location": {
+        "url": "http://127.0.0.1:8000/api/v1/owner/verify-pin",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "networkAnomalies": []
+}

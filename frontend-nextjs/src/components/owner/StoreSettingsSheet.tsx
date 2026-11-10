@@ -76,7 +76,7 @@ export function StoreSettingsSheet({ open, onClose }: { open: boolean; onClose: 
           />
         </Field>
         <p className="rounded-xl bg-paper p-4 text-sm leading-6 text-ink-soft">
-          PIN juragan demo tetap 1234. Pada versi terhubung ke server, PIN diganti dan disimpan sebagai hash.
+          PIN juragan default adalah 1234. PIN tersimpan aman di server dalam format hash.
         </p>
       </div>
     </Sheet>

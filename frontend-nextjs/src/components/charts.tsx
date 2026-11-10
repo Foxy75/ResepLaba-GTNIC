@@ -163,77 +163,25 @@ export function ExpiryHeatmap({
   rows: { itemId: string; itemName: string; unit: string; counts: number[] }[];
   days: string[];
 }) {
-  const titleId = useId();
-
   const cellTone = (count: number) => {
-    if (count >= 3) return "bg-critical text-white";
-    if (count === 2) return "bg-critical-soft text-critical";
-    if (count === 1) return "bg-warning-soft text-warning";
-    return "bg-line/50 text-ink-soft";
+    if (count >= 3) return "bg-critical text-white font-bold";
+    if (count === 2) return "bg-critical-soft text-critical font-bold border border-critical-border/60";
+    if (count === 1) return "bg-warning-soft text-warning font-semibold border border-warning-border/60";
+    return "bg-line/40 text-ink-soft/60";
   };
 
   return (
     <figure className="m-0">
-      <svg
-        viewBox={`0 0 ${Math.max(days.length * 46, 320)} ${Math.max(rows.length * 30 + 28, 60)}`}
-        className="h-auto w-full"
-        role="img"
-        aria-labelledby={titleId}
-      >
-        <title id={titleId}>Peta sebaran batch yang kedaluwarsa tujuh hari ke depan</title>
-        {days.map((day, column) => (
-          <text
-            key={day}
-            x={column * 46 + 21}
-            y="16"
-            textAnchor="middle"
-            fontSize="10"
-            fill="var(--ink-soft)"
-          >
-            {day.slice(8)}/10
-          </text>
-        ))}
-        {rows.map((row, rowIndex) => (
-          <g key={row.itemId}>
-            <text x="0" y={rowIndex * 30 + 38} fontSize="10" fill="var(--ink-soft)">
-              {row.itemName.slice(0, 12)}
-            </text>
-            {row.counts.map((count, column) => (
-              <rect
-                key={`${row.itemId}-${column}`}
-                x={column * 46 + 2}
-                y={rowIndex * 30 + 22}
-                width="38"
-                height="24"
-                rx="6"
-                className={cellTone(count)}
-              />
-            ))}
-          </g>
-        ))}
-      </svg>
-      <figcaption className="mt-2 flex flex-wrap items-center gap-3 text-xs text-ink-soft">
-        <span className="flex items-center gap-1.5">
-          <i className="h-3 w-3 rounded bg-line/50" aria-hidden />Tidak ada batch
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="h-3 w-3 rounded bg-warning-soft" aria-hidden />1 batch
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="h-3 w-3 rounded bg-critical-soft" aria-hidden />2 batch
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="h-3 w-3 rounded bg-critical" aria-hidden />3 batch atau lebih
-        </span>
-      </figcaption>
-      <table className="sr-only">
-        <caption>Jumlah batch per barang dan tanggal kedaluwarsa</caption>
+      <table className="w-full min-w-[500px] border-separate border-spacing-1.5 text-xs">
+        <caption className="sr-only">Peta sebaran batch yang kedaluwarsa tujuh hari ke depan</caption>
         <thead>
           <tr>
-            <th scope="col">Barang</th>
+            <th scope="col" className="w-36 pb-2 text-left font-semibold text-ink-soft">
+              Barang
+            </th>
             {days.map((day) => (
-              <th scope="col" key={day}>
-                {day}
+              <th scope="col" key={day} className="pb-2 text-center font-semibold text-ink-soft">
+                {day.slice(8)}/{day.slice(5, 7)}
               </th>
             ))}
           </tr>
@@ -241,14 +189,40 @@ export function ExpiryHeatmap({
         <tbody>
           {rows.map((row) => (
             <tr key={row.itemId}>
-              <th scope="row">{row.itemName}</th>
+              <th
+                scope="row"
+                className="max-w-[140px] truncate pr-2 text-left font-medium text-ink"
+                title={row.itemName}
+              >
+                {row.itemName}
+              </th>
               {row.counts.map((count, index) => (
-                <td key={`${row.itemId}-${index}`}>{count}</td>
+                <td key={`${row.itemId}-${index}`} className="p-0 text-center">
+                  <div
+                    className={`flex h-8 w-full min-w-[36px] items-center justify-center rounded-lg text-xs tabular transition ${cellTone(count)}`}
+                  >
+                    {count > 0 ? count : "-"}
+                  </div>
+                </td>
               ))}
             </tr>
           ))}
         </tbody>
       </table>
+      <figcaption className="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink-soft">
+        <span className="flex items-center gap-1.5">
+          <i className="h-3 w-3 rounded bg-line/50" aria-hidden />Tidak ada batch
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="h-3 w-3 rounded border border-warning-border/60 bg-warning-soft" aria-hidden />1 batch
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="h-3 w-3 rounded border border-critical-border/60 bg-critical-soft" aria-hidden />2 batch
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="h-3 w-3 rounded bg-critical" aria-hidden />3 batch atau lebih
+        </span>
+      </figcaption>
     </figure>
   );
 }

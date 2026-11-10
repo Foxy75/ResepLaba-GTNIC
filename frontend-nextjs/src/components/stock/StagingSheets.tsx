@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ClipboardCopy, ReceiptText, ScanLine } from "lucide-react";
 import { Sheet } from "@/components/ui/overlay";
 import { Button, Field, Input } from "@/components/ui/primitives";
@@ -63,7 +63,7 @@ export function ReceiptStagingSheet({
               <div>
                 <p className="text-sm font-bold">{row.name}</p>
                 <p className="mt-1 text-xs text-ink-soft">
-                  1 {row.purchaseUnit} isi {numberId(row.conversionRate)} Â· {rupiah(row.totalCost)}
+                  1 {row.purchaseUnit} isi {numberId(row.conversionRate)} — {rupiah(row.totalCost)}
                 </p>
               </div>
               <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
@@ -130,6 +130,7 @@ export function PromoSheet({
   batchCode,
   days,
   qty,
+  batchId,
 }: {
   open: boolean;
   onClose: () => void;
@@ -137,18 +138,38 @@ export function PromoSheet({
   batchCode: string;
   days: number;
   qty: number;
+  batchId: string;
 }) {
+  const { fetchPromo, pending } = useWarung();
   const { push } = useToast();
   const [copied, setCopied] = useState(false);
 
+  const fallback = [
+    `PROMO TEBUS MURAH: ${itemName.toUpperCase()}`,
+    `Sisa ${qty} barang, batas konsumsi tinggal ${days} hari lagi.`,
+    "",
+    `Promo hari ini: ${itemName} diskon spesial! Stok terbatas, yuk belanja sebelum kehabisan.`,
+    `Bisa dipajang di etalase depan atau ditawarkan langsung ke pelanggan.`,
+  ].join("\n");
+
+  const [aiText, setAiText] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !batchId) return;
+    let cancelled = false;
+    void fetchPromo(batchId).then((result) => {
+      if (!cancelled && result.success && result.data?.text) {
+        setAiText(result.data.text);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, batchId, fetchPromo]);
+
+  const text = aiText ?? fallback;
+
   const copy = async () => {
-    const text = [
-      `PROMO TEBUS MURAH ${itemName.toUpperCase()}`,
-      `Batch ${batchCode}, sisa ${qty}, expires dalam ${days} hari.`,
-      "",
-      `Promo hari ini: ${itemName} diskon 20%. Stok terbatas, buruan ya.`,
-      `Bisa titip ke etalase depan biar laku sebelum basi.`,
-    ].join("\n");
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -180,11 +201,11 @@ export function PromoSheet({
         <div className="rounded-2xl border border-warning-border bg-warning-soft p-4">
           <p className="text-sm font-bold text-warning">{itemName} perlu laku</p>
           <p className="mt-1 text-sm leading-6 text-warning">
-            Batch {batchCode} tinggal {qty} dengan jarak {days} hari ke tanggal kedaluwarsa.
+            Stok kulakan ini tersisa {qty} barang dan mendekati batas kedaluwarsa ({days} hari lagi).
           </p>
         </div>
         <pre className="whitespace-pre-wrap rounded-2xl border border-line bg-paper p-4 text-sm leading-6 text-ink">
-          {`PROMO TEBUS MURAH ${itemName.toUpperCase()}\nBatch ${batchCode}, sisa ${qty}, expires dalam ${days} hari.\n\nPromo hari ini: ${itemName} diskon 20%. Stok terbatas, buruan ya.\nBisa titip ke etalase depan biar laku sebelum basi.`}
+          {pending.promo ? "Menyusun ide promo..." : text}
         </pre>
         <p className="flex items-start gap-2 text-xs leading-5 text-ink-soft">
           <ScanLine size={15} className="mt-0.5 shrink-0" aria-hidden />
